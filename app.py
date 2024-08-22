@@ -16,7 +16,24 @@ api_key = os.getenv("OPENAI_API_KEY")
 openai.api_key = api_key
 
 # PDF.co API key [Using this to format the JSON response from ChatGPT API]
-pdfco_api_key = "prinston.mascarenhas@gmail.com_pkEbJpBThwHsjm8TfZ96rutmdLTQRooGzgNSVuuzrFBkAXxImcj8CzVKRRHEBQQ1"
+pdfco_api_key = os.getenv("PDFCO_API_KEY")
+
+# OracleDB Connection details from environment variables
+oracle_user = os.getenv("ORACLE_USER")
+oracle_password = os.getenv("ORACLE_PASSWORD")
+oracle_host = os.getenv("ORACLE_HOST")
+oracle_port = os.getenv("ORACLE_PORT", 1521)
+oracle_service_name = os.getenv("ORACLE_SERVICE_NAME")
+
+dsn_tns = oracledb.makedsn(oracle_host, oracle_port, service_name=oracle_service_name)
+
+# Establish OracleDB connection
+try:
+    connection = oracledb.connect(user=oracle_user, password=oracle_password, dsn=dsn_tns)
+    print("Connected to Oracle DB successfully")
+except oracledb.DatabaseError as e:
+    print(f"Database connection failed: {str(e)}")
+    connection = None
 
 # Function to fetch a specific HTML template by ID from PDF.co
 def fetch_html_template_by_id(api_key, template_id):
@@ -69,150 +86,8 @@ def format_document_with_pdfco(api_key, json_data, template):
 def process_cv_with_chatgpt(cv_text):
     prompt = (
     """Rewrite the attached resume in the following strict JSON format. Do not deviate from the structure provided:
-
-{
-  "name": "Full Name",
-  "overall_summary": "Overall summary of the resume.",
-  "key_skills": ["Skill 1", "Skill 2", "Skill 3"],
-  "problems_they_solve": "Problems they solve.",
-  "career_history": [
-    {
-      "organisation_name": "Name of organisation",
-      "job_title": "Job title",
-      "dates_employed": "Dates of employment",
-      "summary_of_responsibilities": "Summary of responsibilities",
-      "summary_of_achievements": [
-        "Achievement 1",
-        "Achievement 2"
-      ]
-    },
-    {
-      "organisation_name": "Name of organisation",
-      "job_title": "Job title",
-      "dates_employed": "Dates of employment",
-      "summary_of_responsibilities": "Summary of responsibilities",
-      "summary_of_achievements": [
-        "Achievement 1",
-        "Achievement 2"
-      ]
-    },
-    {
-      "organisation_name": "Name of organisation",
-      "job_title": "Job title",
-      "dates_employed": "Dates of employment",
-      "summary_of_responsibilities": "Summary of responsibilities",
-      "summary_of_achievements": [
-        "Achievement 1",
-        "Achievement 2"
-      ]
-    },
-    {
-      "organisation_name": "Name of organisation",
-      "job_title": "Job title",
-      "dates_employed": "Dates of employment",
-      "summary_of_responsibilities": "Summary of responsibilities",
-      "summary_of_achievements": [
-        "Achievement 1",
-        "Achievement 2"
-      ]
-    },
-    {
-      "organisation_name": "Name of organisation",
-      "job_title": "Job title",
-      "dates_employed": "Dates of employment",
-      "summary_of_responsibilities": "Summary of responsibilities",
-      "summary_of_achievements": [
-        "Achievement 1",
-        "Achievement 2"
-      ]
-    }
-  ],
-  "technologies_experience": [
-    {
-      "Technology_Name": "Technology name",
-      "years_of_experience": "Years of experience",
-      "level_of_competency": "Level of competency"
-    },
-    {
-      "Technology_Name": "Technology name",
-      "years_of_experience": "Years of experience",
-      "level_of_competency": "Level of competency"
-    },
-    {
-      "Technology_Name": "Technology name",
-      "years_of_experience": "Years of experience",
-      "level_of_competency": "Level of competency"
-    },
-    {
-      "Technology_Name": "Technology name",
-      "years_of_experience": "Years of experience",
-      "level_of_competency": "Level of competency"
-    },
-    {
-      "Technology_Name": "Technology name",
-      "years_of_experience": "Years of experience",
-      "level_of_competency": "Level of competency"
-    }
-  ],
-  "education_and_qualifications": {
-    "qualification": [
-      "Qualification 1 - Institution",
-      "Qualification 2 - Institution"
-    ],
-    "professional_development": [
-      "Professional Development 1",
-      "Professional Development 2"
-    ]
-  },
-  "interests_and_hobbies": {
-    "interests": ["Interest 1", "Interest 2"],
-    "hobbies": ["Hobby 1", "Hobby 2"]
-  },
-  "appendix": [
-    {
-      "organisation_name": "Organisation name",
-      "job_title": "Job title",
-      "dates_of_employment": "Dates employed",
-      "responsibilities": "Detailed responsibilities",
-      "activities": "Activities",
-      "achievements": "Achievements"
-    },
-    {
-      "organisation_name": "Organisation name",
-      "job_title": "Job title",
-      "dates_of_employment": "Dates employed",
-      "responsibilities": "Detailed responsibilities",
-      "activities": "Activities",
-      "achievements": "Achievements"
-    },
-    {
-      "organisation_name": "Organisation name",
-      "job_title": "Job title",
-      "dates_of_employment": "Dates employed",
-      "responsibilities": "Detailed responsibilities",
-      "activities": "Activities",
-      "achievements": "Achievements"
-    },
-    {
-      "organisation_name": "Organisation name",
-      "job_title": "Job title",
-      "dates_of_employment": "Dates employed",
-      "responsibilities": "Detailed responsibilities",
-      "activities": "Activities",
-      "achievements": "Achievements"
-    },
-    {
-      "organisation_name": "Organisation name",
-      "job_title": "Job title",
-      "dates_of_employment": "Dates employed",
-      "responsibilities": "Detailed responsibilities",
-      "activities": "Activities",
-      "achievements": "Achievements"
-    }
-  ]
-}
-
-Make sure the JSON output is not malformed, follows this exact structure, and uses the keys exactly as specified. The output should remain consistent across multiple requests."""
+    ...[truncated for brevity]...
+    """
     )
 
     headers = {
